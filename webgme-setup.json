@@ -4,9 +4,16 @@
       "Turtle": {
         "src": "src/seeds/Turtle"
       }
+    },
+    "plugins": {
+      "ModelChecker": {
+        "src": "src/plugins/ModelChecker",
+        "test": "test/plugins/ModelChecker"
+      }
     }
   },
   "dependencies": {
-    "seeds": {}
+    "seeds": {},
+    "plugins": {}
   }
 }
