@@ -1,4 +1,12 @@
 {
-  "components": {},
-  "dependencies": {}
+  "components": {
+    "seeds": {
+      "Turtle": {
+        "src": "src/seeds/Turtle"
+      }
+    }
+  },
+  "dependencies": {
+    "seeds": {}
+  }
 }
