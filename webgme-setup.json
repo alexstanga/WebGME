@@ -9,6 +9,10 @@
       "ModelChecker": {
         "src": "src/plugins/ModelChecker",
         "test": "test/plugins/ModelChecker"
+      },
+      "TurtleCodeGenerator": {
+        "src": "src/plugins/TurtleCodeGenerator",
+        "test": "test/plugins/TurtleCodeGenerator"
       }
     }
   },
