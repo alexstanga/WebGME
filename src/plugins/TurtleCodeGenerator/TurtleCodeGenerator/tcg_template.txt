@@ -1,2 +1,37 @@
-model ${name}
+<%
+    def format_command(command, attributes):
+        if command == "penup":
+            return "t.penup()"
+        elif command == "pendown":
+            return "t.pendown()"
+        elif command == "clear":
+            return "t.clear()"
+        elif command == "color":
+            return f"t.color('{attributes.get('color')}')"
+        elif command == "forward":
+            return f"t.forward({attributes.get('steps')})"
+        elif command == "right":
+            return f"t.right({attributes.get('degree')})"
+        elif command == "left":
+            return f"t.left({attributes.get('degree')})"
+        elif command == "width":
+            return f"t.left({attributes.get('thickness')})"
+        elif command == "goto":
+            return f"t.goto({attributes.get('x')}, {attributes.get('y')})"
+        return "# Unknown command"
+%>
 
+from svg_turtle import SvgTurtle
+
+t = SvgTurtle(500, 500)
+
+% for item in sequence_data:
+    % if item["type"] == "command":
+${format_command(item.get("command"), item.get("attributes", {}))}
+    % elif item["type"] == "function":
+for _ in range(${item["loopCount"]}):
+            % for subcommand in item.get("subcommands", []):
+    ${format_command(subcommand.get("command"), subcommand.get("attributes", {}))}
+            % endfor
+    % endif
+% endfor
