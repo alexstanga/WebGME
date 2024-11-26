@@ -16,3 +16,5 @@ t.clear()
 for _ in range(4):
     t.clear()
     t.color('black')
+
+t.save_as('turtle.svg')

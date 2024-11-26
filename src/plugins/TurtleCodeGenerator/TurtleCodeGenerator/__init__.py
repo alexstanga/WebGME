@@ -40,11 +40,14 @@ class TurtleCodeGenerator(PluginBase):
             """
             Add nodes and their sequence relations to the graph.
             """
+            meta_node = core.get_base_type(node)
+            meta_type = core.get_attribute(meta_node, 'name')
             name = core.get_attribute(node, 'name')
             src = core.get_pointer_path(node, 'src')
             dst = core.get_pointer_path(node, 'dst')
-
-            if name == "Turtle":
+            print("Meta")
+            print(name)
+            if meta_type == "Turtle":
                 return
             elif name == "Sequence":
                 if src not in graph:

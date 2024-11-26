@@ -35,3 +35,5 @@ for _ in range(${item["loopCount"]}):
             % endfor
     % endif
 % endfor
+
+t.save_as('turtle.svg')
