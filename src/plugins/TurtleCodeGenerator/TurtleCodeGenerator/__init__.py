@@ -124,7 +124,6 @@ class TurtleCodeGenerator(PluginBase):
                 for next_command in next_commands:
                     traverse_and_print(next_command, visited, output)
 
-
             # Traverse starting from all root nodes
             for start_node in starting_nodes:
                 traverse_and_print(start_node, visited, dag_sequence)
@@ -157,7 +156,6 @@ class TurtleCodeGenerator(PluginBase):
             for line in dag_output:
                 print(line)
 
-
         def get_attributes(node):
             """
             Parses attributes based on the command type.
@@ -173,7 +171,7 @@ class TurtleCodeGenerator(PluginBase):
                 step_value = core.get_attribute(node, 'steps')
                 return {"steps": step_value}
             elif command.startswith("right"):
-                degree_value = core.get_attribute(node, 'color')
+                degree_value = core.get_attribute(node, 'degree')
                 return {"degree": degree_value}
             elif command.startswith("left"):
                 degree_value = core.get_attribute(node, 'degree')
@@ -235,17 +233,23 @@ class TurtleCodeGenerator(PluginBase):
             turtle_code = turtle_code_template.render(sequence_data=template_parameters['sequence_data'])
 
             # put content into temporary directory
-            directory_name = 'turtle_sim_'
+            file_name = 'turtle_sim_'
             for i in range(10):
-                directory_name += str(random.randint(0, 9))
-            directory = os.path.join(os.path.dirname(__file__), directory_name)
-            os.mkdir(directory)
-            os.chdir(directory)
+                file_name += str(random.randint(0, 9))
+            file_name += '.py'
+            # Set the path to 'src/common/svg'
+            base_directory = './src/common/svg'
+            directory = os.path.join(base_directory, file_name)
             # Write the rendered code to a file
-            with open('turtle_sim.py', 'w') as f:
+            with open(directory, 'w') as f:
                 f.write(turtle_code)
 
             print("Turtle code generated!")
+
+            # save file to be downloaded
+            metadata_hash = self.add_file('turtle_sim.py', turtle_code)
+            self.logger.info(f'File added to blob storage with metadata hash: {metadata_hash}')
+            core.set_attribute(active_node, 'artifact', str(metadata_hash))
 
         def at_node(node):
             """
@@ -265,3 +269,4 @@ class TurtleCodeGenerator(PluginBase):
         print("Printing Graph")
         print_graph()
         output_template()
+        self.util.save(root_node, self.commit_hash, self.branch_name, "Model Checker saved into model.")

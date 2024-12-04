@@ -13,11 +13,36 @@
       "TurtleCodeGenerator": {
         "src": "src/plugins/TurtleCodeGenerator",
         "test": "test/plugins/TurtleCodeGenerator"
+      },
+      "TurtleSVGCreator": {
+        "src": "src/plugins/TurtleSVGCreator",
+        "test": "test/plugins/TurtleSVGCreator"
+      },
+      "TurtleCodeImporter": {
+        "src": "src/plugins/TurtleCodeImporter",
+        "test": "test/plugins/TurtleCodeImporter"
+      }
+    },
+    "visualizers": {
+      "PlotView": {
+        "src": "panels/PlotView/PlotViewPanel",
+        "title": "PlotView",
+        "panel": "src/visualizers/panels/PlotView",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/PlotView"
+      },
+      "SVGView": {
+        "src": "panels/SVGView/SVGViewPanel",
+        "title": "SVGView",
+        "panel": "src/visualizers/panels/SVGView",
+        "secondary": false,
+        "widget": "src/visualizers/widgets/SVGView"
       }
     }
   },
   "dependencies": {
     "seeds": {},
-    "plugins": {}
+    "plugins": {},
+    "visualizers": {}
   }
 }
