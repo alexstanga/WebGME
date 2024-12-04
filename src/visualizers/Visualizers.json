@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "PlotView",
+    "title": "PlotView",
+    "panel": "panels/PlotView/PlotViewPanel",
+    "DEBUG_ONLY": false
+  },
+  {
+    "id": "SVGView",
+    "title": "SVGView",
+    "panel": "panels/SVGView/SVGViewPanel",
+    "DEBUG_ONLY": false
+  }
+]
