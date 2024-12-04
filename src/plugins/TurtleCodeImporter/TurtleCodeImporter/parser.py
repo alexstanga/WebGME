@@ -1,94 +1,64 @@
-from lark import Lark, Transformer
-from lark.indenter import Indenter
+def pyToTurtle(script):
+    lines = script.splitlines()
+    stack = []  # Keeps track of nested loops
+    result = {"commands": []}  # Final parsed result
+    current_block = result["commands"]  # Current block being populated
+    indentation_levels = [0]  # Track indentation levels
 
-grammar = r"""
-start: statement+
+    for line in lines:
+        stripped_line = line.strip()
+        if not stripped_line or stripped_line.startswith("t.save_as"):
+            continue  # Skip empty lines or save_as command
 
-statement: command
-         | loop
+        indent_level = len(line) - len(stripped_line)
 
-command: "t." action "(" arguments ")"  -> simple_command
-       | "t." action "()"               -> no_argument_command
-action: STRING
-loop: "for" "_" "in" "range" "(" NUMBER ")" ":" block  -> loop_block
+        # Handle dedentation
+        while indent_level < indentation_levels[-1]:
+            stack.pop()
+            indentation_levels.pop()
 
-block: statement+
+        # Handle entering a new block
+        if indent_level > indentation_levels[-1]:
+            indentation_levels.append(indent_level)
 
-arguments: argument ("," argument)*  -> multiple_arguments
+        # Update current block after dedentation
+        current_block = stack[-1] if stack else result["commands"]
 
-argument: ESCAPED_STRING | NUMBER | "None"
+        # Handle loop
+        if stripped_line.startswith("for _ in range("):
+            iterations = int(stripped_line.split("(")[1].split(")")[0])  # Extract loop count
+            loop_block = {"type": "loop", "iterations": iterations, "body": []}
+            current_block.append(loop_block)
+            stack.append(loop_block["body"])  # Push the loop body onto the stack
+            current_block = loop_block["body"]
 
-COMMENT: /#.*/
-%ignore COMMENT
-%ignore "from svg_turtle import SvgTurtle"
-%ignore "t = SvgTurtle(500, 500)"
-%ignore /t\.save_as\(.+\)/
+        # Handle commands
+        elif stripped_line.startswith("t."):
+            action, args = parse_command(stripped_line)
+            command = {"type": "command", "action": action, "arguments": args}
+            current_block.append(command)
 
-%import common.SIGNED_NUMBER -> NUMBER
-%import common.NEWLINE
-%import common.WS
-
-ESCAPED_STRING: /'([^'\\]*(\\.[^'\\]*)*)'/ | /"([^"\\]*(\\.[^"\\]*)*)"/
-STRING: /[a-zA-Z_][a-zA-Z_0-9]*/
-%ignore WS
-"""
-
-
-class PyToTurtleTransformer(Transformer):
-    def start(self, items):
-        return {"commands": items}
-
-    def simple_command(self, items):
-        return {
-            "type": "command",
-            "action": items[0],
-            "arguments": items[1]
-        }
-
-    def no_argument_command(self, items):
-        return {
-            "type": "command",
-            "action": items[0],
-            "arguments": []
-        }
-
-    def loop_block(self, items):
-        count = items[0]
-        block = items[1]
-        return {
-            "type": "loop",
-            "iterations": count,
-            "body": block
-        }
-
-    def block(self, items):
-        return items
-
-    def action(self, items):
-        return str(items[0])
-
-    def multiple_arguments(self, items):
-        return list(items)
-
-    def single_argument(self, items):
-        return [items[0]]
-
-    def argument(self, items):
-        if items[0] == "None":
-            return None
-        return items[0]
+    return result
 
 
-class PyToTurtle():
-    def __init__(self):
-        self.transformer = PyToTurtleTransformer()
-        self.parser = Lark(grammar, parser="lalr")
+def parse_command(command_line):
+    # Extract action and arguments
+    action = command_line[2:command_line.index("(")].strip()
+    args = command_line[command_line.index("(") + 1 : command_line.rindex(")")].strip()
+    # Handle argument parsing
+    if args:
+        args = [parse_argument(arg.strip()) for arg in args.split(",")]
+    else:
+        args = []
+    return action, args
 
-    def getJson(self, text):
-        try:
-            tree = self.parser.parse(text)
-            print("Printing Tree")
-            print(tree.pretty())
-            return self.transformer.transform(tree)
-        except Exception as e:
-            return {"error": str(e)}
+
+def parse_argument(arg):
+    # Handle different argument types (strings, numbers, None)
+    if arg.startswith(("'", '"')) and arg.endswith(("'", '"')):
+        return arg[1:-1]  # Strip quotes for strings
+    elif arg.isdigit():
+        return int(arg)  # Convert numbers
+    elif arg.lower() == "none":
+        return None
+    return arg  # Return raw for unsupported types
